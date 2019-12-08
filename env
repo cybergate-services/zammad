@@ -1,0 +1,21 @@
+# don't forget to add the minus before the version
+# example: VERSION=-2.9.0-1
+IMAGE_REPO=zammad/zammad-docker-compose
+VERSION=
+RESTART=always
+
+# zammad-proxy
+PUID=1002
+PGID=1002
+TZ=Asia/Colombo
+URL=lexiicontech.com
+SUBDOMAINS=support,
+EXTRA_DOMAINS=
+VALIDATION=http
+EMAIL=support@lexiicontech.com
+DHLEVEL=2048
+ONLY_SUBDOMAINS=true
+STAGING=false
+
+# zammad-mariadb
+
