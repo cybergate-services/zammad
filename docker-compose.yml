@@ -38,16 +38,24 @@ services:
     restart: always
     volumes:
       - zammad-elasticsearch:/usr/share/elasticsearch/data
+    networks:
+     - zammad-network
 
-  memcached:
+  zammad-memcached:
     command: ["zammad-memcached"]
     image: zammad/zammad-docker-compose:zammad-memcached
+    container_name: zammad-memcached
+    hostname: zammad-memcached
     labels:
       io.rancher.container.pull_image: always
     restart: always
+    networks:
+     - zammad-network
 
-  mariadb:
+  zammad-mariadb:
     image: osixia/mariadb:10.2.8
+    container_name: zammad-mariadb
+    hostname: zammad-mariadb
     labels:
       - "io.rancher.container.pull_image: always"
       - "traefik.enable=false"
@@ -57,10 +65,14 @@ services:
       MARIADB_DATABASES: "zammad"
       MARIADB_USERS: "#PYTHON2BASH:[{'zammad': 'zammad'}]"
     volumes:
-      - mariadb:/var/lib/mysql
+      - zammad-mariadb:/var/lib/mysql
+    networks:
+     - zammad-network
 
-  zammad:
+  zammad-zammad:
     image: osixia/zammad:3.2.0
+    container_name: zammad-zammad
+    hostname: zammad-zammad
     command: -l info
     labels:
       - "io.rancher.container.pull_image: always"
@@ -68,26 +80,36 @@ services:
       - "traefik.frontend.rule=Host:zammad.example.org;PathPrefix:/"
       - "traefik.port=443"
     links:
-      - elasticsearch
-      - mariadb
-      - memcached
+      - zammad-elasticsearch
+      - zammad-mariadb
+      - zammad-memcached
     ports:
       - "6443:443"
     restart: always
     environment:
-      ZAMMAD_DB_HOST: "mariadb"
+      ZAMMAD_DB_HOST: "zammad-mariadb"
       ZAMMAD_DB_NAME: "zammad"
       ZAMMAD_DB_USER: "zammad"
-      ZAMMAD_DB_PASSWORD: "zammad"
-      ZAMMAD_ELASTICSEARCH_URL: "http://elasticsearch:9200"
-      ZAMMAD_MEMCACHED_HOST: memcached
+      ZAMMAD_DB_PASSWORD: ${ZAMMAD_DB_PASSWORD}
+      ZAMMAD_ELASTICSEARCH_URL: "http://zammad-elasticsearch:9200"
+      ZAMMAD_MEMCACHED_HOST: zammad-memcached
     volumes:
       - zammad-backup:/data/backup
 
 volumes:
-  elasticsearch:
+  zammad-elasticsearch:
     driver: local
-  mariadb:
+  zammad-mariadb:
     driver: local
   zammad-backup:
     driver: local
+
+networks:
+  zammad-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-zammad
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.26.1.0/24
