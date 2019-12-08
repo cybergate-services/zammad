@@ -1,0 +1,65 @@
+version: '3.3'
+
+services:
+
+  elasticsearch:
+    image: zammad/zammad-docker-compose:zammad-elasticsearch
+    labels:
+      - "io.rancher.container.pull_image: always"
+      - "traefik.enable=false"
+    restart: always
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+
+  memcached:
+    command: ["zammad-memcached"]
+    image: zammad/zammad-docker-compose:zammad-memcached
+    labels:
+      io.rancher.container.pull_image: always
+    restart: always
+
+  mariadb:
+    image: osixia/mariadb:10.2.8
+    labels:
+      - "io.rancher.container.pull_image: always"
+      - "traefik.enable=false"
+    restart: always
+    environment:
+      MARIADB_ROOT_ALLOWED_NETWORKS: "#PYTHON2BASH:['localhost','127.0.0.1','::1', '172.%.%.%']"
+      MARIADB_DATABASES: "zammad"
+      MARIADB_USERS: "#PYTHON2BASH:[{'zammad': 'zammad'}]"
+    volumes:
+      - mariadb:/var/lib/mysql
+
+  zammad:
+    image: osixia/zammad:3.2.0
+    command: -l info
+    labels:
+      - "io.rancher.container.pull_image: always"
+      - "traefik.protocol=https"
+      - "traefik.frontend.rule=Host:zammad.example.org;PathPrefix:/"
+      - "traefik.port=443"
+    links:
+      - elasticsearch
+      - mariadb
+      - memcached
+    ports:
+      - "6443:443"
+    restart: always
+    environment:
+      ZAMMAD_DB_HOST: "mariadb"
+      ZAMMAD_DB_NAME: "zammad"
+      ZAMMAD_DB_USER: "zammad"
+      ZAMMAD_DB_PASSWORD: "zammad"
+      ZAMMAD_ELASTICSEARCH_URL: "http://elasticsearch:9200"
+      ZAMMAD_MEMCACHED_HOST: memcached
+    volumes:
+      - zammad-backup:/data/backup
+
+volumes:
+  elasticsearch:
+    driver: local
+  mariadb:
+    driver: local
+  zammad-backup:
+    driver: local
