@@ -95,6 +95,8 @@ services:
       ZAMMAD_MEMCACHED_HOST: zammad-memcached
     volumes:
       - zammad-backup:/data/backup
+    networks:
+      - zammad-network
 
 volumes:
   zammad-elasticsearch:
