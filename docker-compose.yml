@@ -61,6 +61,8 @@ services:
       - "traefik.enable=false"
     restart: always
     environment:
+      MARIADB_ROOT_USER: admin
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
       MARIADB_ROOT_ALLOWED_NETWORKS: "#PYTHON2BASH:['localhost','127.0.0.1','::1', '172.%.%.%']"
       MARIADB_DATABASES: "zammad"
       MARIADB_USERS: "#PYTHON2BASH:[{'zammad': 'zammad'}]"
