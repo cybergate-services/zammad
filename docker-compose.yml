@@ -2,14 +2,42 @@ version: '3.3'
 
 services:
 
-  elasticsearch:
+  zammad-proxy:
+    image: cybergatelabs/letsencrypt
+    container_name: zammad-proxy
+    hostname: zammad-proxy
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - URL=${URL}
+      - SUBDOMAINS=${SUBDOMAINS},
+      - EXTRA_DOMAINS=${EXTRA_DOMAINS}
+      - VALIDATION=${VALIDATION}
+      - EMAIL=${EMAIL}
+      - DHLEVEL=${DHLEVEL}
+      - ONLY_SUBDOMAINS=${ONLY_SUBDOMAINS}
+      - STAGING=${STAGING}
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./data/letsencrypt/config:/config
+    networks:
+     - zammad-network
+     
+  zammad-elasticsearch:
     image: zammad/zammad-docker-compose:zammad-elasticsearch
+    container_name: zammad-elasticsearch
+    hostname: zammad-elasticsearch
     labels:
       - "io.rancher.container.pull_image: always"
       - "traefik.enable=false"
     restart: always
     volumes:
-      - elasticsearch:/usr/share/elasticsearch/data
+      - zammad-elasticsearch:/usr/share/elasticsearch/data
 
   memcached:
     command: ["zammad-memcached"]
