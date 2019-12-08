@@ -18,4 +18,4 @@ ONLY_SUBDOMAINS=true
 STAGING=false
 
 # zammad-mariadb
-
+ZAMMAD_DB_PASSWORD=CHANGE_ME
