@@ -29,7 +29,7 @@ services:
      - zammad-network
      
   zammad-elasticsearch:
-    image: zammad/zammad-docker-compose:zammad-elasticsearch
+    image: ${IMAGE_REPO}:zammad-elasticsearch
     container_name: zammad-elasticsearch
     hostname: zammad-elasticsearch
     labels:
@@ -43,7 +43,7 @@ services:
 
   zammad-memcached:
     command: ["zammad-memcached"]
-    image: zammad/zammad-docker-compose:zammad-memcached
+    image: ${IMAGE_REPO}:zammad-memcached
     container_name: zammad-memcached
     hostname: zammad-memcached
     labels:
