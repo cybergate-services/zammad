@@ -65,7 +65,7 @@ services:
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
       MARIADB_ROOT_ALLOWED_NETWORKS: "#PYTHON2BASH:['localhost','127.0.0.1','::1', '172.26.1.%']"
       MARIADB_DATABASES: "zammad"
-      MARIADB_USERS: "#PYTHON2BASH:[{'zammad': 'zammad'}]"
+      MARIADB_USERS: "#PYTHON2BASH:[{'zammad': '${ZAMMAD_DB_PASSWORD}'}]"
     volumes:
       - zammad-mariadb:/var/lib/mysql
     networks:
